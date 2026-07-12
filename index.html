@@ -33,6 +33,38 @@
             z-index: 1;
         }
 
+        /* การแจ้งเตือน Toast กระจกแบบลอย */
+        #glass-toast {
+            position: absolute;
+            top: 24px;
+            left: 50%;
+            transform: translate(-50%, -40px);
+            opacity: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-top: 1px solid rgba(255, 255, 255, 0.25);
+            border-left: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 16px;
+            padding: 10px 22px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: -0.1px;
+            color: #ffffff;
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.4),
+                inset 0 1px 2px rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        #glass-toast.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
         /* ตัวนับจำนวนผู้ชมแบบสดมุมซ้ายบน */
         #live-counter {
             position: absolute;
@@ -103,18 +135,18 @@
 
         /* ตัวครอบสำหรับแอนิเมชันสปริง 3 มิติ */
         #tilt-wrapper {
-            width: 100%;
+            width: auto;
             display: flex;
             justify-content: center;
             animation: slide3D 1.5s cubic-bezier(0.15, 1.05, 0.3, 1.02) forwards;
             margin-top: 0;
+            transform-origin: center center;
         }
 
-        /* การ์ดกระจกเหลวใสระดับพรีเมียม */
+        /* การ์ดกระจกเหลวใสระดับพรีเมียม (PC & Phone Sizing Sync) */
         .bio-card {
             pointer-events: auto;
-            width: 100%;
-            max-width: 380px; /* ปรับความกว้างให้สมดุล */
+            width: 380px; /* ล็อกขนาดมาตรฐานสีสวยเพื่อไม่ให้ดูบวม/อ้วนบน PC (ปรับให้กว้างขึ้นเล็กน้อยตามคำขอ) */
             
             /* ไล่ระดับสีเข้มทำหน้าที่เป็นฟิล์มกรองแสงเหนือเอนจินเบลอ WebGL */
             background: linear-gradient(135deg, rgba(20, 20, 25, 0.45), rgba(5, 5, 10, 0.25)); 
@@ -124,7 +156,7 @@
             border-top: 1px solid rgba(255, 255, 255, 0.20);
             border-left: 1px solid rgba(255, 255, 255, 0.20);
             border-radius: 32px;
-            padding: 40px 28px; /* เพิ่มพื้นที่ว่างด้านในให้ดูไม่อึดอัด */
+            padding: 40px 30px; /* ปรับระยะขอบด้านในให้สมดุลกับความกว้างที่เพิ่มขึ้น */
             text-align: center;
             
             /* เงาตกกระทบที่ลึกและหรูหรา */
@@ -139,9 +171,9 @@
 
         /* คอนเทนเนอร์รูปประจำตัวโปรไฟล์ */
         .avatar-container {
-            width: 95px; /* ย่อขนาดอวตารเพื่อความกระชับ */
+            width: 95px; 
             height: 95px;
-            margin: 0 auto 16px auto; /* บีบอัดระยะขอบด้านล่าง */
+            margin: 0 auto 16px auto; 
             position: relative;
         }
 
@@ -179,7 +211,7 @@
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
         }
 
-        /* สไตล์ชื่อผู้ใช้แบบธรรมดา ไม่โต้ตอบ (ลบฟังก์ชันคัดลอกออก) */
+        /* สไตล์ชื่อผู้ใช้แบบธรรมดา ไม่โต้ตอบ */
         .profile-username {
             font-size: 12.5px;
             font-weight: 500;
@@ -194,7 +226,7 @@
             font-weight: 500;
             line-height: 1.5;
             color: rgba(255, 255, 255, 0.8);
-            margin: 0 0 24px 0; /* เพิ่มระยะห่างก่อนเริ่มปุ่ม */
+            margin: 0 0 24px 0; 
             padding: 0 8px;
             text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
         }
@@ -203,14 +235,14 @@
         .links-wrapper {
             display: flex;
             flex-direction: column;
-            gap: 16px; /* เพิ่มช่องว่างระหว่างปุ่มให้ห่างขึ้น ไม่อึดอัด */
+            gap: 16px; /* ระยะห่างระหว่างปุ่มที่สมดุลและโปร่งตา */
         }
 
         .glass-btn {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 16px 20px; /* เพิ่มความสูงของปุ่ม (ยาวลงมา) */
+            padding: 16px 20px; /* ยืดความสูงปุ่มแนวตั้งเพื่อให้คลิกง่ายสมส่วน */
             font-size: 14px;
             font-weight: 700;
             text-decoration: none;
@@ -220,7 +252,7 @@
             border: 1px solid rgba(255, 255, 255, 0.04);
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             border-left: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px; /* มุมโค้งมนให้สอดคล้องกับความสูงที่เพิ่มขึ้น */
+            border-radius: 16px; 
             box-sizing: border-box;
             
             transform: translateY(0px) scale(1);
@@ -279,19 +311,17 @@
             opacity: 0.9;
         }
 
-        /* ขยายขนาดไอคอน Easy Donate โดยเฉพาะ */
+        /* ตกแต่งไอคอน Easy Donate เป็นพิเศษ */
         .btn-icon.donate-icon {
-            left: 11px; /* เลื่อนตำแหน่งซ้ายเล็กน้อยเพื่อความสมดุล */
+            left: 11px; 
         }
 
         .btn-icon.donate-icon img {
-            width: 32px; /* ขนาดไอคอนที่โดดเด่นแต่สมดุลกับดีไซน์ใหม่ */
+            width: 32px; 
             height: 32px;
         }
 
         /* --- แอนิเมชันเปิดตัว 3 มิติ ระดับพรีเมียม --- */
-        
-        /* แอนิเมชันเลื่อนขึ้น, หมุนไปข้างหน้า และดีดกลับนุ่มนวลแบบ 3 มิติ */
         @keyframes slide3D {
             0% {
                 opacity: 0;
@@ -303,7 +333,6 @@
             }
         }
 
-        /* แอนิเมชันสไลด์เปิดตัวตัวนับจำนวนแบบสดพร้อมหน่วงเวลา */
         @keyframes slideInCounter {
             0% {
                 opacity: 0;
@@ -315,59 +344,36 @@
             }
         }
 
-        /* --- กฎการปรับขนาด UI อัตโนมัติตามอุปกรณ์ --- */
+        /* --- ซิงค์สเกล UI อัตโนมัติในโทรศัพท์และ PC ให้สมบูรณ์แบบเป๊ะ (Proportional Scale Sync) --- */
         
-        /* สำหรับหน้าจอมือถือขนาดเล็ก/แคบ */
+        /* บนโทรศัพท์ ย่อขนาดลงแบบครอบคลุมทั้งตัวโครงสร้าง เพื่อให้หน้าตาดูเหมือนบน PC ทุกประการ (ซิงค์สัดส่วนแบบเป๊ะๆ) */
         @media (max-width: 420px) {
-            #ui-container {
-                padding: 15px;
+            #tilt-wrapper {
+                transform: scale(0.92);
             }
-            .bio-card {
-                padding: 32px 20px; 
-                border-radius: 26px;
+        }
+        
+        @media (max-width: 390px) {
+            #tilt-wrapper {
+                transform: scale(0.85);
             }
-            .avatar-container {
-                width: 84px;
-                height: 84px;
-                margin-bottom: 12px;
-            }
-            .profile-name { font-size: 17px; }
-            .profile-username { font-size: 11px; margin-bottom: 6px; }
-            .profile-bio { font-size: 11.5px; margin-bottom: 20px; }
-            .links-wrapper { gap: 14px; }
-            .glass-btn {
-                padding: 14px 18px;
-                font-size: 13px;
-                border-radius: 14px;
-            }
-            .btn-icon.donate-icon {
-                left: 10px;
-            }
-            .btn-icon.donate-icon img {
-                width: 26px;
-                height: 26px;
+        }
+        
+        @media (max-width: 350px) {
+            #tilt-wrapper {
+                transform: scale(0.78);
             }
         }
 
-        /* สำหรับหน้าจอความสูงน้อย (โหมดแนวนอนหรือมือถือรุ่นสั้น) */
+        /* สำหรับอุปกรณ์ความสูงน้อย */
         @media (max-height: 720px) {
             #live-counter {
                 top: 15px;
                 left: 15px;
                 padding: 6px 12px;
             }
-            .bio-card {
-                padding: 24px 20px;
-            }
-            .avatar-container {
-                width: 74px;
-                height: 74px;
-                margin-bottom: 10px;
-            }
-            .profile-bio { margin-bottom: 16px; }
-            .links-wrapper { gap: 12px; }
-            .glass-btn {
-                padding: 12px 16px;
+            #tilt-wrapper {
+                transform: scale(0.88); /* ป้องกัน UI ล้นขอบจอด้านล่าง */
             }
         }
     </style>
@@ -496,6 +502,7 @@
 
                 myPresenceDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'presence', sessionUid);
 
+                // ส่งสัญญาณบอกตำแหน่งการออนไลน์ทุกๆ 4 วินาทีเพื่อความสดใหม่ทันที
                 const writeActivePresence = async () => {
                     if (!firebaseActive || !auth.currentUser) return;
                     try {
@@ -504,17 +511,18 @@
                 };
 
                 await writeActivePresence();
-                heartbeatInterval = setInterval(writeActivePresence, 6000);
+                heartbeatInterval = setInterval(writeActivePresence, 4000);
 
                 const presenceCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'presence');
                 
+                // ตรวจเช็คข้อมูลสด หากไม่มีอัปเดตเกิน 10 วินาทีให้ถือว่าขาดการติดต่อทันที
                 unsubscribePresence = onSnapshot(presenceCollectionRef, (snapshot) => {
                     const now = Date.now();
                     let activeUsers = 0;
 
                     snapshot.forEach((doc) => {
                         const data = doc.data();
-                        if (data && data.lastActive && (now - data.lastActive < 15000)) {
+                        if (data && data.lastActive && (now - data.lastActive < 10000)) {
                             activeUsers++;
                         }
                     });
@@ -524,13 +532,17 @@
                     startSimulationEngine();
                 });
 
-                window.addEventListener('beforeunload', async () => {
+                // ลบตัวตนทันทีเมื่อปิดแท็บหรือรีเฟรชเบราว์เซอร์
+                const cleanUpOnExit = async () => {
                     if (heartbeatInterval) clearInterval(heartbeatInterval);
                     if (unsubscribePresence) unsubscribePresence();
                     if (myPresenceDocRef && firebaseActive && auth.currentUser) {
                         try { await deleteDoc(myPresenceDocRef); } catch (err) {}
                     }
-                });
+                };
+
+                window.addEventListener('beforeunload', cleanUpOnExit);
+                window.addEventListener('unload', cleanUpOnExit);
 
             } catch (e) {
                 startSimulationEngine();
