@@ -477,7 +477,9 @@
         const initFirebasePresence = async () => {
             try {
                 if (typeof __firebase_config === 'undefined' || !__firebase_config) {
-                    throw new Error("Missing config");
+                    console.warn("Firebase config missing. Defaulting to 1 viewer.");
+                    updateWatchCountDisplay(1);
+                    return;
                 }
                 const firebaseConfig = JSON.parse(__firebase_config);
                 const app = initializeApp(firebaseConfig);
@@ -495,74 +497,81 @@
                 const userCredential = await initAuth();
                 const user = userCredential.user;
 
-                if (!user) throw new Error("Authentication failed");
+                if (!user) {
+                    updateWatchCountDisplay(1);
+                    return;
+                }
 
                 firebaseActive = true;
                 const sessionUid = user.uid;
 
                 myPresenceDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'presence', sessionUid);
 
-                // ส่งสัญญาณบอกตำแหน่งการออนไลน์ทุกๆ 4 วินาทีเพื่อความสดใหม่ทันที
+                // ส่งสัญญาณบอกตำแหน่งการออนไลน์ทุกๆ 5 วินาทีเพื่อความสดใหม่ทันที
                 const writeActivePresence = async () => {
                     if (!firebaseActive || !auth.currentUser) return;
                     try {
                         await setDoc(myPresenceDocRef, { lastActive: Date.now() });
-                    } catch (err) {}
+                    } catch (err) {
+                        console.error("Failed to update presence", err);
+                    }
                 };
 
                 await writeActivePresence();
-                heartbeatInterval = setInterval(writeActivePresence, 4000);
+                heartbeatInterval = setInterval(writeActivePresence, 5000);
 
                 const presenceCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'presence');
                 
-                // ตรวจเช็คข้อมูลสด หากไม่มีอัปเดตเกิน 10 วินาทีให้ถือว่าขาดการติดต่อทันที
+                // ตรวจเช็คข้อมูลสด หากไม่มีอัปเดตเกิน 15 วินาทีให้ถือว่าขาดการติดต่อทันที
                 unsubscribePresence = onSnapshot(presenceCollectionRef, (snapshot) => {
                     const now = Date.now();
                     let activeUsers = 0;
 
                     snapshot.forEach((doc) => {
                         const data = doc.data();
-                        if (data && data.lastActive && (now - data.lastActive < 10000)) {
+                        // นับเฉพาะคนที่ส่งสัญญาณมาภายใน 15 วินาทีล่าสุด
+                        if (data && data.lastActive && (now - data.lastActive < 15000)) {
                             activeUsers++;
                         }
                     });
 
+                    // แสดงผลอย่างน้อย 1 คนเสมอ (คือตัวผู้ใช้เอง)
                     updateWatchCountDisplay(Math.max(1, activeUsers));
                 }, (error) => {
-                    startSimulationEngine();
+                    console.error("Snapshot error:", error);
+                    updateWatchCountDisplay(1);
                 });
 
-                // ลบตัวตนทันทีเมื่อปิดแท็บหรือรีเฟรชเบราว์เซอร์
-                const cleanUpOnExit = async () => {
+                // ลบตัวตนทันทีเมื่อปิดแท็บ, รีเฟรช, หรือซ่อนหน้าต่าง
+                const cleanUpOnExit = () => {
                     if (heartbeatInterval) clearInterval(heartbeatInterval);
-                    if (unsubscribePresence) unsubscribePresence();
                     if (myPresenceDocRef && firebaseActive && auth.currentUser) {
-                        try { await deleteDoc(myPresenceDocRef); } catch (err) {}
+                        deleteDoc(myPresenceDocRef).catch(() => {});
                     }
                 };
 
+                // รองรับการทำงาน Real-time ทุกรูปแบบทั้งบนมือถือและ PC
                 window.addEventListener('beforeunload', cleanUpOnExit);
+                window.addEventListener('pagehide', cleanUpOnExit);
                 window.addEventListener('unload', cleanUpOnExit);
+                
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible') {
+                        // เมื่อกลับเข้ามาที่หน้าเว็บใหม่ ให้เริ่มส่งสถานะออนไลน์อีกครั้ง
+                        writeActivePresence();
+                        if (heartbeatInterval) clearInterval(heartbeatInterval);
+                        heartbeatInterval = setInterval(writeActivePresence, 5000);
+                    } else {
+                        // เมื่อพับหน้าจอหรือสลับแท็บ ให้ลบสถานะออนไลน์ออกทันที
+                        cleanUpOnExit();
+                    }
+                });
 
             } catch (e) {
-                startSimulationEngine();
+                console.error("Initialization error:", e);
+                updateWatchCountDisplay(1);
             }
         };
-
-        // เริ่มจำลองตัวเลขคนดูในกรณีที่ไม่ได้เชื่อมต่อฐานข้อมูล
-        let simulationInterval = null;
-        function startSimulationEngine() {
-            if (simulationInterval) return; 
-            let simCount = Math.floor(Math.random() * 4) + 3; 
-            updateWatchCountDisplay(simCount);
-
-            simulationInterval = setInterval(() => {
-                const rand = Math.random();
-                if (rand > 0.65) simCount = Math.min(simCount + 1, 9);
-                else if (rand < 0.35) simCount = Math.max(simCount - 1, 2); 
-                updateWatchCountDisplay(simCount);
-            }, 8000);
-        }
 
         initFirebasePresence();
     </script>
